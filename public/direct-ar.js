@@ -1,6 +1,6 @@
 import {cameraError} from './camera-utils.js';
 import {modelLabel} from './model-label.js';
-import {enableCameraFullscreen} from './camera-screen.js?v=camera-4';
+import {enableCameraFullscreen} from './camera-screen.js?v=camera-7';
 const requestCameraFullscreen=enableCameraFullscreen();
 const base=new URL('./',location.href),venueId=new URLSearchParams(location.search).get('venue')||'demo';
 const video=document.querySelector('#camera-video'),loading=document.querySelector('#loading'),ui=document.querySelector('#camera-ui'),dialog=document.querySelector('#photo-view'),title=document.querySelector('#loading-title'),note=document.querySelector('#loading-note');
@@ -20,7 +20,7 @@ async function getActivity(){
   if(!data?.model)throw new Error('此展場尚未開放或已結束');
   const model={...data.model,name:modelLabel(data.model.name),glb:asset(data.model.glb)};
   // Only this exact built-in asset has a camera variant; replacement models use their configured URL.
-  if(model.id==='owl-v42-1'&&model.glb===asset('/models/v42-loop.glb')){model.fallbackGlb=model.glb;model.glb=asset('/models/v42-camera-meshopt.glb');}
+  if(model.id==='owl-v42-1'&&model.glb===asset('/models/v42-loop.glb')){model.fallbackGlb=model.glb;model.glb=asset('/models/v42-camera-meshopt.glb');model.previewGlb=asset('/models/v42-camera-lite.glb');}
   return {...data,model};
 }
 function stopCamera(){if(stream)for(const track of stream.getTracks())track.stop();stream=undefined;video.srcObject=null;}
@@ -50,13 +50,18 @@ document.querySelector('#save-photo').onclick=async()=>{
 window.addEventListener('online',flush);window.addEventListener('pagehide',()=>{closing=true;cancelled=true;stopCamera();overlay?.dispose();clearPhoto();});window.addEventListener('pageshow',e=>{if(e.persisted&&closing)location.reload();});
 // Request camera permission immediately; no start control or native AR jump.
 const cameraReady=openCamera(facing),activityReady=getActivity();
-const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-4')]).then(async([data,{createOverlay}])=>{
+const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-7')]).then(async([data,{createOverlay}])=>{
   if(cancelled)throw new Error('已結束體驗');
-  title.textContent='正在下載北商小菁鷹數媒版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
+  title.textContent='正在下載北商小菁鷹數媒版';note.textContent='先準備輕量角色，允許相機後即可合照…';
   const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載北商小菁鷹數媒版 ${progress}% · 請允許使用相機`;},distance=>document.querySelector('#character-distance').value=String(Math.round(distance*10)));
   if(cancelled){next.dispose();throw new Error('已結束體驗');}overlay=next;return next;
 });
 try{
   const results=await Promise.all([cameraReady,activityReady,modelReady]);activity=results[1];if(cancelled)throw new Error('已結束體驗');requestCameraFullscreen();
   if(cancelled){overlay.dispose();throw new Error('已結束體驗');}document.querySelector('#model-label').textContent=activity.model.name;ui.hidden=false;loading.hidden=true;flush();record();
+  const quality=document.querySelector('#quality-note');
+  if(overlay.preview){quality.hidden=false;quality.textContent='已可合照 · 背景提升畫質中';
+    // Let the lightweight actor appear before starting the full-quality download.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!cancelled)overlay.upgrade(state=>{quality.textContent=state==='ready'?'完整畫質已就緒':state==='preview'?'輕量角色 · 已可合照':'已可合照 · 背景提升畫質中';});}));
+  }
 }catch(error){if(!closing)fail(error);}

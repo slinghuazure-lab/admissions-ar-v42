@@ -1,0 +1,13 @@
+{
+  "source_bytes": 7943412,
+  "compressed_views": 608,
+  "position_normal_max_error": 3.0517578125e-05,
+  "topology_changed": false,
+  "animation_changed": false,
+  "textures_changed": false,
+  "geometry_precision_bits": 18,
+  "output_bytes": 3364876,
+  "reduction_percent": 57.6,
+  "source_gzip_bytes": 2859394,
+  "output_gzip_bytes": 1992545
+}

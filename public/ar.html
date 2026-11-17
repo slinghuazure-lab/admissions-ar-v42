@@ -10,7 +10,7 @@
   <meta name="description" content="自動開啟相機，與北商小菁鷹數媒版一起合照。">
   <title>北商小菁鷹數媒版相機合照</title>
   <link rel="icon" href="./favicon.svg">
-  <link rel="stylesheet" href="./direct-ar.css?v=camera-4">
+  <link rel="stylesheet" href="./direct-ar.css?v=camera-7">
 </head>
 <body>
   <main id="direct-app">
@@ -19,11 +19,12 @@
     <div id="camera-ui" hidden>
       <header><span id="model-label"></span><button id="fullscreen-toggle" type="button">全螢幕</button></header>
       <p id="screen-note" hidden role="status"></p>
+      <p id="quality-note" hidden role="status" aria-live="polite"></p>
       <p class="gesture-hint">拖曳角色位置 · 雙指拉近／推遠</p>
       <div class="camera-controls"><label class="size-control" for="character-distance">角色遠近 <span>遠</span><input id="character-distance" type="range" min="35" max="140" value="75" step="1" aria-label="角色與鏡頭的虛擬距離"><span>近</span></label><div class="shutter-row"><a class="return-link" href="./">活動介紹</a><button id="shutter" type="button" aria-label="拍照"><span></span></button><button id="switch-camera" type="button">切換鏡頭</button></div><p class="privacy">照片只在手機內處理，不上傳影像。</p></div>
     </div>
     <dialog id="photo-view"><img id="photo-result" alt="人物、場景與北商小菁鷹數媒版的合照"><div class="photo-actions"><button id="retake" type="button">再拍一張</button><button id="save-photo" type="button">儲存照片</button></div><p id="save-note" role="status"></p></dialog>
   </main>
-  <script type="module" src="./direct-ar.js?v=camera-6"></script>
+  <script type="module" src="./direct-ar.js?v=camera-7"></script>
 </body>
 </html>
