@@ -1,3 +1,4 @@
+import {modelLabel,catalogLabels} from '../public/model-label.js';
 export const base=import.meta.env?.BASE_URL||'/';
 let settings,accessToken='';
 export async function getSettings(){
@@ -23,7 +24,7 @@ export async function loadActivity(venue){
     if(!entry)throw new Error('此展場尚未開放或已結束');result={venue:{id:entry.id,name:entry.name},model:catalog.models.find(m=>m.id===entry.modelId),mode:'static'};
   }
   if(!result?.model)throw new Error('此展場尚未開放或已結束');
-  return {...result,model:{...result.model,glb:assetUrl(result.model.glb),usdz:assetUrl(result.model.usdz),poster:assetUrl(result.model.poster)}};
+  return {...result,model:{...result.model,name:modelLabel(result.model.name),glb:assetUrl(result.model.glb),usdz:assetUrl(result.model.usdz),poster:assetUrl(result.model.poster)}};
 }
 export async function recordLaunch(item){
   const config=settings||await getSettings();
@@ -39,11 +40,11 @@ export function clearSession(){accessToken='';}
 export async function adminRequest(path,options={},token){
   const config=settings||await getSettings();
   if(config.provider==='local'){
-    const response=await fetch('/api/admin/'+path,{...options,headers:{Authorization:'Bearer '+token,...(options.body&&typeof options.body==='string'?{'Content-Type':'application/json'}:{}),...options.headers}});const data=await response.json();if(!response.ok)throw new Error(data.error||'無法完成操作');return data;
+    const response=await fetch('/api/admin/'+path,{...options,headers:{Authorization:'Bearer '+token,...(options.body&&typeof options.body==='string'?{'Content-Type':'application/json'}:{}),...options.headers}});const data=await response.json();if(!response.ok)throw new Error(data.error||'無法完成操作');return path==='catalog'||path.startsWith('stats?')?catalogLabels(data):data;
   }
   const jwt=token||accessToken;if(!jwt)throw new Error('請先登入管理員帳號');
-  if(path==='catalog')return rpc('ar_admin_catalog',{},jwt);
-  if(path.startsWith('stats?')){const params=new URLSearchParams(path.split('?')[1]);return rpc('ar_get_stats',{p_from:params.get('from'),p_to:params.get('to'),p_venue:params.get('venue')||null},jwt);}
+  if(path==='catalog')return catalogLabels(await rpc('ar_admin_catalog',{},jwt));
+  if(path.startsWith('stats?')){const params=new URLSearchParams(path.split('?')[1]);return catalogLabels(await rpc('ar_get_stats',{p_from:params.get('from'),p_to:params.get('to'),p_venue:params.get('venue')||null},jwt));}
   if(path==='models')return rpc('ar_save_model',{p_model:JSON.parse(options.body)},jwt);
   if(path==='venues')return rpc('ar_save_venue',{p_venue:JSON.parse(options.body)},jwt);
   if(path.startsWith('upload?')){

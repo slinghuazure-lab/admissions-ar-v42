@@ -1,4 +1,5 @@
 import {cameraError} from './camera-utils.js';
+import {modelLabel} from './model-label.js';
 import {enableCameraFullscreen} from './camera-screen.js?v=camera-4';
 const requestCameraFullscreen=enableCameraFullscreen();
 const base=new URL('./',location.href),venueId=new URLSearchParams(location.search).get('venue')||'demo';
@@ -17,7 +18,7 @@ async function getActivity(){
   else if(settings.supabaseUrl&&settings.supabaseAnonKey){const response=await rpc('ar_get_activity',{p_venue:venueId});if(!response.ok)throw new Error('展場服務暫時無法連線，請稍後重新整理');data=await response.json();}
   else{const response=await fetch(new URL('catalog.json',base));if(!response.ok)throw new Error('暫時無法取得展場設定');const catalog=await response.json(),venue=catalog.venues.find(v=>v.id===venueId&&v.active);if(!venue)throw new Error('此展場尚未開放或已結束');data={venue:{id:venue.id,name:venue.name},model:catalog.models.find(m=>m.id===venue.modelId),mode:'static'};}
   if(!data?.model)throw new Error('此展場尚未開放或已結束');
-  const model={...data.model,glb:asset(data.model.glb)};
+  const model={...data.model,name:modelLabel(data.model.name),glb:asset(data.model.glb)};
   // Only this exact built-in asset has a camera variant; replacement models use their configured URL.
   if(model.id==='owl-v42-1'&&model.glb===asset('/models/v42-loop.glb')){model.fallbackGlb=model.glb;model.glb=asset('/models/v42-camera-meshopt.glb');}
   return {...data,model};
@@ -42,7 +43,7 @@ document.querySelector('#shutter').onclick=async()=>{
 document.querySelector('#retake').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{clearPhoto();overlay?.setPaused(false);});
 document.querySelector('#save-photo').onclick=async()=>{
   if(!photoBlob)return;const name='AR-合照-'+Date.now()+'.jpg',file=new File([photoBlob],name,{type:'image/jpeg'});
-  try{if(navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:'和小菁運動版合照'});
+  try{if(navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:'和北商小菁鷹數媒版合照'});
     else{const link=document.createElement('a');link.href=photoUrl;link.download=name;document.body.append(link);link.click();link.remove();document.querySelector('#save-note').textContent='若未出現下載，請長按照片選擇儲存影像。';}}
   catch(error){if(error.name!=='AbortError')document.querySelector('#save-note').textContent='請長按照片，選擇儲存影像。';}
 };
