@@ -6,10 +6,11 @@
 
 已完成活動頁、iPhone Quick Look／Android Scene Viewer 啟動連結、展場 QR Code、3D 預覽、模型版本庫、展場指派、台北時區統計與 CSV 匯出。
 Supabase Auth、資料表與 RLS 已設定；主辦已確認管理員授權成功。實際展場資料讀取回傳 HTTP 200，匿名管理查詢回傳 HTTP 401。
-GitHub 儲存庫及 Pages 尚未建立／發布。真正的地面定位、拍照、循環播放與人物遮擋仍須實體手機驗收。
+GitHub 儲存庫及 Pages 已發布，活動頁、管理頁及兩種模型下載皆已確認 HTTP 200。真正的地面定位、拍照、循環播放與人物遮擋仍須實體手機驗收。
 
-預定儲存庫：slinghuazure-lab/admissions-ar-v42。
-預定網址：https://slinghuazure-lab.github.io/admissions-ar-v42/ （尚未上線，不能當正式 QR Code）。
+正式儲存庫：https://github.com/slinghuazure-lab/admissions-ar-v42
+活動網址：https://slinghuazure-lab.github.io/admissions-ar-v42/
+管理網址：https://slinghuazure-lab.github.io/admissions-ar-v42/admin.html
 管理頁為網站下的 admin.html。
 
 V42：半愛心 20 秒 → YA 20 秒 → 全愛心 20 秒，單一 Exhibit_Loop 共 60 秒。

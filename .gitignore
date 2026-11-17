@@ -68,3 +68,7 @@ yarn-error.log*
 
 /scripts/
 
+
+# Unused starter-only configuration
+/.npmrc
+/drizzle.config.ts
