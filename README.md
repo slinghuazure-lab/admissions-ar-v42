@@ -120,3 +120,13 @@ server：僅供本機測試的 Node／SQLite 服務，不發布到 Pages。
 .github/workflows：獨立 GitHub Pages 發布流程。
 
 初始工具另產生未使用的框架檔案，已列入忽略清單，不屬於交付內容。
+
+
+## 直接 AR 入口
+
+新增入口：https://slinghuazure-lab.github.io/admissions-ar-v42/ar.html?venue=demo
+
+此入口使用獨立的 public/ar.html、direct-ar.js、direct-ar-links.js 與 direct-ar.css，原活動首頁、管理後台與舊 QR Code 保留。
+進入後讀取展場指定的模型，自動嘗試啟動 AR；瀏覽器若要求使用者手勢，保留一個「開啟 AR 合照」按鈕。相機授權與手機系統提示仍須由訪客確認，無法保證跨平台零點擊。
+Android AR 開啟失敗會回到同一新入口並停止自動跳轉，避免循環。自動啟動嘗試與其按鈕補開共用一次啟動紀錄；從 AR 返回後再次啟動會另計一次。
+更換展場請調整 venue 參數，模型仍由原管理後台的展場設定決定。
