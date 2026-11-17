@@ -1,5 +1,5 @@
 import {cameraError} from './camera-utils.js';
-import {enableCameraFullscreen} from './camera-screen.js?v=camera-3';
+import {enableCameraFullscreen} from './camera-screen.js?v=camera-4';
 const requestCameraFullscreen=enableCameraFullscreen();
 const base=new URL('./',location.href),venueId=new URLSearchParams(location.search).get('venue')||'demo';
 const video=document.querySelector('#camera-video'),loading=document.querySelector('#loading'),ui=document.querySelector('#camera-ui'),dialog=document.querySelector('#photo-view'),title=document.querySelector('#loading-title'),note=document.querySelector('#loading-note');
@@ -32,7 +32,7 @@ async function openCamera(direction){
 }
 function fail(error){cancelled=true;ui.hidden=true;loading.hidden=false;loading.classList.add('error');title.textContent='暫時無法開啟合照';note.textContent=cameraError(error);stopCamera();overlay?.dispose();}
 function clearPhoto(){if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=undefined;photoBlob=undefined;document.querySelector('#photo-result').removeAttribute('src');}
-document.querySelector('#character-size').oninput=e=>overlay?.setScale(Number(e.target.value)/100);
+document.querySelector('#character-distance').oninput=e=>overlay?.setDistance(Number(e.target.value)/10);
 document.querySelector('#switch-camera').onclick=async()=>{if(switching||!overlay)return;switching=true;loading.hidden=false;title.textContent='正在切換鏡頭';note.textContent='請稍候…';stopCamera();facing=facing==='environment'?'user':'environment';try{await openCamera(facing);loading.hidden=true;}catch(error){fail(error);}finally{switching=false;}};
 document.querySelector('#shutter').onclick=async()=>{
   if(!overlay||!stream||switching||dialog.open)return;
@@ -49,10 +49,10 @@ document.querySelector('#save-photo').onclick=async()=>{
 window.addEventListener('online',flush);window.addEventListener('pagehide',()=>{closing=true;cancelled=true;stopCamera();overlay?.dispose();clearPhoto();});window.addEventListener('pageshow',e=>{if(e.persisted&&closing)location.reload();});
 // Request camera permission immediately; no start control or native AR jump.
 const cameraReady=openCamera(facing),activityReady=getActivity();
-const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-3')]).then(async([data,{createOverlay}])=>{
+const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-4')]).then(async([data,{createOverlay}])=>{
   if(cancelled)throw new Error('已結束體驗');
   title.textContent='正在載入小菁運動版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
-  const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載角色模型 ${progress}% · 請允許使用相機`;},zoom=>document.querySelector('#character-size').value=String(Math.round(zoom*100)));
+  const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載角色模型 ${progress}% · 請允許使用相機`;},distance=>document.querySelector('#character-distance').value=String(Math.round(distance*10)));
   if(cancelled){next.dispose();throw new Error('已結束體驗');}overlay=next;return next;
 });
 try{
