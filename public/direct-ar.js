@@ -14,7 +14,11 @@ async function getActivity(){
   if(settings.provider==='local'){const response=await fetch('/api/activity?venue='+encodeURIComponent(venueId));data=await response.json();if(!response.ok)throw new Error(data.error);}
   else if(settings.supabaseUrl&&settings.supabaseAnonKey){const response=await rpc('ar_get_activity',{p_venue:venueId});if(!response.ok)throw new Error('展場服務暫時無法連線，請稍後重新整理');data=await response.json();}
   else{const response=await fetch(new URL('catalog.json',base));if(!response.ok)throw new Error('暫時無法取得展場設定');const catalog=await response.json(),venue=catalog.venues.find(v=>v.id===venueId&&v.active);if(!venue)throw new Error('此展場尚未開放或已結束');data={venue:{id:venue.id,name:venue.name},model:catalog.models.find(m=>m.id===venue.modelId),mode:'static'};}
-  if(!data?.model)throw new Error('此展場尚未開放或已結束');return {...data,model:{...data.model,glb:asset(data.model.glb)}};
+  if(!data?.model)throw new Error('此展場尚未開放或已結束');
+  const model={...data.model,glb:asset(data.model.glb)};
+  // Only this exact built-in asset has a camera variant; replacement models use their configured URL.
+  if(model.id==='owl-v42-1'&&model.glb===asset('/models/v42-loop.glb')){model.fallbackGlb=model.glb;model.glb=asset('/models/v42-camera-meshopt.glb');}
+  return {...data,model};
 }
 function stopCamera(){if(stream)for(const track of stream.getTracks())track.stop();stream=undefined;video.srcObject=null;}
 async function openCamera(direction){
@@ -43,10 +47,13 @@ document.querySelector('#save-photo').onclick=async()=>{
 window.addEventListener('online',flush);window.addEventListener('pagehide',()=>{closing=true;cancelled=true;stopCamera();overlay?.dispose();clearPhoto();});window.addEventListener('pageshow',e=>{if(e.persisted&&closing)location.reload();});
 // Request camera permission immediately; no start control or native AR jump.
 const cameraReady=openCamera(facing),activityReady=getActivity();
+const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-2')]).then(async([data,{createOverlay}])=>{
+  if(cancelled)throw new Error('已結束體驗');
+  title.textContent='正在載入小菁運動版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
+  const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載角色模型 ${progress}% · 請允許使用相機`;},zoom=>document.querySelector('#character-size').value=String(Math.round(zoom*100)));
+  if(cancelled){next.dispose();throw new Error('已結束體驗');}overlay=next;return next;
+});
 try{
-  const results=await Promise.all([cameraReady,activityReady]);activity=results[1];if(cancelled)throw new Error('已結束體驗');
-  title.textContent='正在載入小菁運動版';note.textContent='首次下載模型需要一些時間，請保持網頁開啟…';
-  const {createOverlay}=await import('./camera/camera-runtime.js?v=camera-1');
-  overlay=await createOverlay(document.querySelector('#character-layer'),activity.model,progress=>{note.textContent=progress===null?'正在下載角色模型…':`正在下載角色模型 ${progress}%`;},zoom=>document.querySelector('#character-size').value=String(Math.round(zoom*100)));
+  const results=await Promise.all([cameraReady,activityReady,modelReady]);activity=results[1];if(cancelled)throw new Error('已結束體驗');
   if(cancelled){overlay.dispose();throw new Error('已結束體驗');}document.querySelector('#model-label').textContent=activity.model.name;ui.hidden=false;loading.hidden=true;flush();record();
 }catch(error){if(!closing)fail(error);}

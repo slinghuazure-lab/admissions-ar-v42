@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {coverCrop,photoSize} from '../public/camera-utils.js';
 export async function createOverlay(container,model,onProgress=()=>{},onScale=()=>{}){
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;
   const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,.01,100);camera.position.z=5;
   scene.add(new THREE.HemisphereLight(0xffffff,0xa8ad8d,2.5));const light=new THREE.DirectionalLight(0xfff5dd,3);light.position.set(3,6,5);scene.add(light);
-  let gltf;try{gltf=await new GLTFLoader().loadAsync(model.glb,event=>onProgress(event.total?Math.min(99,Math.round(event.loaded/event.total*100)):null));}catch{renderer.dispose();throw new Error('模型暫時無法下載，請確認網路後重新整理。');}
+  const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const load=url=>loader.loadAsync(url,event=>onProgress(event.total?Math.min(99,Math.round(event.loaded/event.total*100)):null));
+  let gltf;try{try{gltf=await load(model.glb);}catch(error){if(!model.fallbackGlb)throw error;gltf=await load(model.fallbackGlb);}}catch{renderer.dispose();throw new Error('模型暫時無法下載，請確認網路後重新整理。');}
   const box=new THREE.Box3().setFromObject(gltf.scene),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());gltf.scene.position.sub(center);
   const actor=new THREE.Group();actor.add(gltf.scene);scene.add(actor);const mixer=new THREE.AnimationMixer(gltf.scene),clip=gltf.animations[0];
   if(!clip){renderer.dispose();throw new Error('此模型尚未提供循環動畫，請聯絡展場人員。');}mixer.clipAction(clip).setLoop(THREE.LoopRepeat,Infinity).play();

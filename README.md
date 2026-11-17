@@ -124,7 +124,7 @@ server：僅供本機測試的 Node／SQLite 服務，不發布到 Pages。
 
 ## 新入口：自動相機＋3D 合照
 
-網址：https://slinghuazure-lab.github.io/admissions-ar-v42/ar.html?venue=demo&v=camera1
+網址：https://slinghuazure-lab.github.io/admissions-ar-v42/ar.html?venue=demo&v=camera2
 
 掃碼後顯示 Loading 動畫，立即要求相機權限。允許後下載角色，準備完成即自動顯示相機與 V42 的 60 秒循環動畫，沒有啟動按鈕。
 模型疊加於鏡頭畫面，可拖曳及雙指縮放，不做地面定位。拍照鍵由訪客自行操作，產生的照片包含鏡頭人物／場景與 3D 模型，不含網頁操作介面。
@@ -135,3 +135,5 @@ server：僅供本機測試的 Node／SQLite 服務，不發布到 Pages。
 新入口檔案為 public/ar.html、public/direct-ar.js、public/direct-ar.css、public/camera-utils.js 與 src/direct-camera.js；3D 程式獨立建置至 camera/camera-runtime.js。
 原活動首頁、管理後台及其程式保留。原生 AR 連結工具仍保留供相容性用途，新入口不使用它。
 已完成裁切、輸出尺寸與錯誤提示的程式檢查及建置；實際手機的相機授權、模型呈現、照片合成與儲存仍需實機驗收。
+
+新入口使用獨立的 meshopt 壓縮模型（約 28.5 MB），與相機同步準備。原始模型、原活動頁及管理後台保留。更換模型網址後會使用新設定，不會套用既有小菁鷹的壓縮版本。
