@@ -1,0 +1,36 @@
+{
+  "models": [
+    {
+      "id": "owl-v42-1",
+      "name": "小菁鷹運動版",
+      "version": "V42 · 60 秒循環",
+      "description": "半愛心、YA、全愛心，和小菁鷹一起留下展場回憶。",
+      "glb": "/models/v42-loop.glb",
+      "usdz": "/models/v42-loop.usdz",
+      "poster": "/posters/v42.png",
+      "duration": 60,
+      "clips": [
+        {
+          "name": "半愛心",
+          "seconds": 20
+        },
+        {
+          "name": "YA",
+          "seconds": 20
+        },
+        {
+          "name": "全愛心",
+          "seconds": 20
+        }
+      ]
+    }
+  ],
+  "venues": [
+    {
+      "id": "demo",
+      "name": "招生展覽體驗區",
+      "modelId": "owl-v42-1",
+      "active": true
+    }
+  ]
+}

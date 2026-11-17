@@ -1,0 +1,22 @@
+{
+  "name": "ntub-admissions-ar",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "node server/local.mjs",
+    "start": "node server/local.mjs",
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.180.0",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "vite": "6.3.0"
+  }
+}
