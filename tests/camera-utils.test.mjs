@@ -1,0 +1,5 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {coverCrop,photoSize,cameraError} from '../public/camera-utils.js';
+test('portrait photos crop landscape video centrally to match the visible camera frame',()=>{const crop=coverCrop(1920,1080,900,1600);assert.equal(crop.height,1080);assert.ok(Math.abs(crop.width-607.5)<.001);assert.ok(Math.abs(crop.x-656.25)<.001);assert.equal(crop.y,0);});
+test('landscape photos crop portrait video centrally',()=>{const crop=coverCrop(1080,1920,1600,900);assert.equal(crop.width,1080);assert.ok(Math.abs(crop.height-607.5)<.001);assert.equal(crop.x,0);});
+test('photo exports retain aspect ratio and limit the longest edge',()=>{const size=photoSize(430,932,3);assert.deepEqual(size,{width:860,height:1864});const big=photoSize(2000,1000,3);assert.deepEqual(big,{width:1920,height:960});assert.throws(()=>coverCrop(0,1080,390,844));});
+test('denied, missing and busy cameras give actionable instructions',()=>{assert.match(cameraError({name:'NotAllowedError'}),/允許相機/);assert.match(cameraError({name:'NotFoundError'}),/找不到/);assert.match(cameraError({name:'NotReadableError'}),/關閉其他/);});

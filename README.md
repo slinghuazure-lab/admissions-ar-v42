@@ -122,11 +122,16 @@ server：僅供本機測試的 Node／SQLite 服務，不發布到 Pages。
 初始工具另產生未使用的框架檔案，已列入忽略清單，不屬於交付內容。
 
 
-## 直接 AR 入口
+## 新入口：自動相機＋3D 合照
 
-新增入口：https://slinghuazure-lab.github.io/admissions-ar-v42/ar.html?venue=demo
+網址：https://slinghuazure-lab.github.io/admissions-ar-v42/ar.html?venue=demo&v=camera1
 
-此入口使用獨立的 public/ar.html、direct-ar.js、direct-ar-links.js 與 direct-ar.css，原活動首頁、管理後台與舊 QR Code 保留。
-進入後讀取展場指定的模型，自動嘗試啟動 AR；瀏覽器若要求使用者手勢，保留一個「開啟 AR 合照」按鈕。相機授權與手機系統提示仍須由訪客確認，無法保證跨平台零點擊。
-Android AR 開啟失敗會回到同一新入口並停止自動跳轉，避免循環。自動啟動嘗試與其按鈕補開共用一次啟動紀錄；從 AR 返回後再次啟動會另計一次。
-更換展場請調整 venue 參數，模型仍由原管理後台的展場設定決定。
+掃碼後顯示 Loading 動畫，立即要求相機權限。允許後下載角色，準備完成即自動顯示相機與 V42 的 60 秒循環動畫，沒有啟動按鈕。
+模型疊加於鏡頭畫面，可拖曳及雙指縮放，不做地面定位。拍照鍵由訪客自行操作，產生的照片包含鏡頭人物／場景與 3D 模型，不含網頁操作介面。
+可切換前後鏡頭；前鏡頭的鏡像只套用到相機影像，模型及衣服文字保持正常方向。照片僅在手機內產生，可透過系統分享或下載儲存，不上傳 Supabase。
+相機與模型都準備好後才記錄一次使用；切換鏡頭及拍照不會增加啟動人次。離開頁面會停止相機串流。
+若拒絕相機權限，頁面顯示瀏覽器授權與重新整理的說明。
+
+新入口檔案為 public/ar.html、public/direct-ar.js、public/direct-ar.css、public/camera-utils.js 與 src/direct-camera.js；3D 程式獨立建置至 camera/camera-runtime.js。
+原活動首頁、管理後台及其程式保留。原生 AR 連結工具仍保留供相容性用途，新入口不使用它。
+已完成裁切、輸出尺寸與錯誤提示的程式檢查及建置；實際手機的相機授權、模型呈現、照片合成與儲存仍需實機驗收。

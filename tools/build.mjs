@@ -13,6 +13,8 @@ const modules=dirname(dirname(dependency('three'))),qr=dependency('qrcode').repl
 await build({root,base:pageBase,configFile:false,css:{postcss:{plugins:[]}},publicDir:resolve(root,'public'),resolve:{alias:[{find:/^three\/addons\/(.*)/,replacement:modules+'/examples/jsm/$1'},{find:/^three\/(.*)/,replacement:modules+'/$1'},{find:'three',replacement:dependency('three')},{find:'qrcode',replacement:qr}]},build:{outDir:resolve(root,'dist/client'),emptyOutDir:true,rollupOptions:{input:resolve(root,'index.html')},chunkSizeWarningLimit:850}});
 await cp(resolve(root,'config/catalog.json'),resolve(root,'dist/client/catalog.json'));
 await cp(resolve(root,'dist/client/index.html'),resolve(root,'dist/client/admin.html'));
+// The new camera entry is bundled separately; the original activity entry is untouched.
+await build({root,configFile:false,publicDir:false,css:{postcss:{plugins:[]}},resolve:{alias:[{find:/^three\/addons\/(.*)/,replacement:modules+'/examples/jsm/$1'},{find:/^three\/(.*)/,replacement:modules+'/$1'},{find:'three',replacement:dependency('three')}]},build:{outDir:resolve(root,'dist/client/camera'),emptyOutDir:true,lib:{entry:resolve(root,'src/direct-camera.js'),formats:['es'],fileName:()=> 'camera-runtime.js'},rollupOptions:{output:{inlineDynamicImports:true}},chunkSizeWarningLimit:900}});
 await writeFile(resolve(root,'dist/client/.nojekyll'),'');
 if(pages){
   const settings=JSON.parse(await readFile(resolve(root,'public/site-config.json'),'utf8'));
