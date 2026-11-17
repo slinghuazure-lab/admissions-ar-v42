@@ -51,8 +51,8 @@ window.addEventListener('online',flush);window.addEventListener('pagehide',()=>{
 const cameraReady=openCamera(facing),activityReady=getActivity();
 const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-4')]).then(async([data,{createOverlay}])=>{
   if(cancelled)throw new Error('已結束體驗');
-  title.textContent='正在載入小菁運動版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
-  const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載角色模型 ${progress}% · 請允許使用相機`;},distance=>document.querySelector('#character-distance').value=String(Math.round(distance*10)));
+  title.textContent='正在下載北商小菁鷹數媒版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
+  const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載北商小菁鷹數媒版 ${progress}% · 請允許使用相機`;},distance=>document.querySelector('#character-distance').value=String(Math.round(distance*10)));
   if(cancelled){next.dispose();throw new Error('已結束體驗');}overlay=next;return next;
 });
 try{
