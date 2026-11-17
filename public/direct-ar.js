@@ -1,4 +1,6 @@
 import {cameraError} from './camera-utils.js';
+import {enableCameraFullscreen} from './camera-screen.js?v=camera-3';
+const requestCameraFullscreen=enableCameraFullscreen();
 const base=new URL('./',location.href),venueId=new URLSearchParams(location.search).get('venue')||'demo';
 const video=document.querySelector('#camera-video'),loading=document.querySelector('#loading'),ui=document.querySelector('#camera-ui'),dialog=document.querySelector('#photo-view'),title=document.querySelector('#loading-title'),note=document.querySelector('#loading-note');
 const outboxKey='ar-pending-launches';let settings,activity,stream,overlay,photoUrl,photoBlob,mirror=false,facing='environment',cancelled=false,switching=false,closing=false;
@@ -47,13 +49,13 @@ document.querySelector('#save-photo').onclick=async()=>{
 window.addEventListener('online',flush);window.addEventListener('pagehide',()=>{closing=true;cancelled=true;stopCamera();overlay?.dispose();clearPhoto();});window.addEventListener('pageshow',e=>{if(e.persisted&&closing)location.reload();});
 // Request camera permission immediately; no start control or native AR jump.
 const cameraReady=openCamera(facing),activityReady=getActivity();
-const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-2')]).then(async([data,{createOverlay}])=>{
+const modelReady=Promise.all([activityReady,import('./camera/camera-runtime.js?v=camera-3')]).then(async([data,{createOverlay}])=>{
   if(cancelled)throw new Error('已結束體驗');
   title.textContent='正在載入小菁運動版';note.textContent='請允許使用相機，角色下載完成後會自動出現…';
   const next=await createOverlay(document.querySelector('#character-layer'),data.model,progress=>{if(cancelled)return;note.textContent=progress===null?'正在準備角色，並請允許使用相機…':progress>=99?'角色下載完成，正在準備動畫…':`正在下載角色模型 ${progress}% · 請允許使用相機`;},zoom=>document.querySelector('#character-size').value=String(Math.round(zoom*100)));
   if(cancelled){next.dispose();throw new Error('已結束體驗');}overlay=next;return next;
 });
 try{
-  const results=await Promise.all([cameraReady,activityReady,modelReady]);activity=results[1];if(cancelled)throw new Error('已結束體驗');
+  const results=await Promise.all([cameraReady,activityReady,modelReady]);activity=results[1];if(cancelled)throw new Error('已結束體驗');requestCameraFullscreen();
   if(cancelled){overlay.dispose();throw new Error('已結束體驗');}document.querySelector('#model-label').textContent=activity.model.name;ui.hidden=false;loading.hidden=true;flush();record();
 }catch(error){if(!closing)fail(error);}

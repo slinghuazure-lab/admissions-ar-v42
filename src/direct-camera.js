@@ -4,7 +4,9 @@ import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {coverCrop,photoSize} from '../public/camera-utils.js';
 export async function createOverlay(container,model,onProgress=()=>{},onScale=()=>{}){
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;
-  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,.01,100);camera.position.z=5;
+  // Keep the actor's normalized size; place it farther from a perspective camera.
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(40,1,.01,100);camera.position.z=5;
+  const actorDepth=-2.5,actorHeight=1.65;
   scene.add(new THREE.HemisphereLight(0xffffff,0xa8ad8d,2.5));const light=new THREE.DirectionalLight(0xfff5dd,3);light.position.set(3,6,5);scene.add(light);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const load=url=>loader.loadAsync(url,event=>onProgress(event.total?Math.min(99,Math.round(event.loaded/event.total*100)):null));
@@ -13,7 +15,7 @@ export async function createOverlay(container,model,onProgress=()=>{},onScale=()
   const actor=new THREE.Group();actor.add(gltf.scene);scene.add(actor);const mixer=new THREE.AnimationMixer(gltf.scene),clip=gltf.animations[0];
   if(!clip){renderer.dispose();throw new Error('此模型尚未提供循環動畫，請聯絡展場人員。');}mixer.clipAction(clip).setLoop(THREE.LoopRepeat,Infinity).play();
   let zoom=1,x=.68,y=.58,paused=false,disposed=false,last=performance.now();
-  const apply=()=>{const width=container.clientWidth,height=container.clientHeight;if(!width||!height)return;const aspect=width/height;camera.left=-aspect;camera.right=aspect;camera.updateProjectionMatrix();actor.scale.setScalar(.9/(size.y||1)*zoom);actor.position.set((x-.5)*2*aspect,(.5-y)*2,0);};
+  const apply=()=>{const width=container.clientWidth,height=container.clientHeight;if(!width||!height)return;const aspect=width/height;camera.aspect=aspect;camera.updateProjectionMatrix();const viewHeight=2*(camera.position.z-actorDepth)*Math.tan(THREE.MathUtils.degToRad(camera.fov/2));actor.scale.setScalar(actorHeight/(size.y||1)*zoom);actor.position.set((x-.5)*viewHeight*aspect,(.5-y)*viewHeight,actorDepth);};
   const resize=new ResizeObserver(()=>{renderer.setSize(container.clientWidth,container.clientHeight);apply();});container.replaceChildren(renderer.domElement);renderer.setSize(container.clientWidth,container.clientHeight);resize.observe(container);apply();
   renderer.domElement.setAttribute('aria-label','可拖曳及縮放的循環角色');renderer.domElement.dataset.animation=clip.name;renderer.domElement.dataset.duration=String(clip.duration);
   const draw=()=>renderer.render(scene,camera);renderer.setAnimationLoop(now=>{const dt=document.hidden||paused?0:Math.min((now-last)/1000,.1);last=now;if(!disposed){mixer.update(dt);draw();}});
