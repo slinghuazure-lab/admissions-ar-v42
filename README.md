@@ -1,7 +1,6 @@
 # 招生展覽 AR 合照系統
 
 獨立系統：GitHub Pages 活動網站＋Supabase 資料庫、管理員登入及模型儲存。
-不部署到既有 ai-character-photo-booth，也不共用該網站的資料表。
 
 ## 狀態
 
